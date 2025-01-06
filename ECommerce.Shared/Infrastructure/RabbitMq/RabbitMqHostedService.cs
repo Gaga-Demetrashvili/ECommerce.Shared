@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client.Events;
+using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
 
@@ -11,7 +12,7 @@ namespace ECommerce.Shared.Infrastructure.RabbitMq;
 
 public class RabbitMqHostedService : IHostedService
 {
-    private const string ExchangeName = "ecomerce-exchange";
+    private const string ExchangeName = "ecommerce-exchange";
 
     private readonly IServiceProvider _serviceProvider;
     private readonly EventHandlerRegistration _handlerRegistrations;
@@ -86,6 +87,37 @@ public class RabbitMqHostedService : IHostedService
 
         var @event = JsonSerializer.Deserialize(message, eventType) as Event;
 
+        #region Explanation
+        /*   
+            Polymorphism in Action
+
+            When you resolve the IEventHandler instance (e.g., using GetKeyedServices<IEventHandler>(eventType)), 
+            the resolved handler is still an instance of a class implementing IEventHandler<TEvent>, 
+            which provides the specific Handle(TEvent) logic. 
+
+            The call
+            handler.Handle(@event);
+
+            Invokes the non-generic Handle(Event @event) method on IEventHandler.
+
+            Because of the default implementation in IEventHandler<TEvent>, it casts @event to TEvent and then calls the type-specific Handle(TEvent) method.
+
+            Why This Design Works:
+            Decoupling:
+
+            The event bus works with IEventHandler without knowing the exact TEvent type at compile time.
+            Polymorphism:
+
+            The runtime type of the handler ensures that the correct Handle(TEvent @event) is called.
+            Default Interface Implementation:
+
+            Bridges the gap between the non-generic IEventHandler and the type-specific IEventHandler<TEvent>.
+
+            In summary, the default implementation of IEventHandler.
+            Handle(Event @event) combined with polymorphism ensures that the type-specific Handle(TEvent @event) 
+            method is correctly invoked for the appropriate event type at runtime.
+        */
+        #endregion
         foreach (var handler in scope.ServiceProvider.GetKeyedServices<IEventHandler>(eventType))
         {
             handler.Handle(@event);
