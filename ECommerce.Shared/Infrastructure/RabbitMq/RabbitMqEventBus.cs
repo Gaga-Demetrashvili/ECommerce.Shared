@@ -17,6 +17,8 @@ public class RabbitMqEventBus : IEventBus
 
     public Task PublishAsync(Event @event)
     {
+        var routingKey = @event.GetType().Name;
+
         using var channel = _rabbitMqConnection.Connection.CreateModel();
 
         channel.ExchangeDeclare(
@@ -30,7 +32,7 @@ public class RabbitMqEventBus : IEventBus
 
         channel.BasicPublish(
             exchange: ExchangeName,
-            routingKey: string.Empty,
+            routingKey: routingKey,
             mandatory: false,
             basicProperties: null,
             body: body);
