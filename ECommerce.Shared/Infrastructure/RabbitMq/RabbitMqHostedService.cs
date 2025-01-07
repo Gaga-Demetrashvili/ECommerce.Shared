@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client.Events;
-using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
 
