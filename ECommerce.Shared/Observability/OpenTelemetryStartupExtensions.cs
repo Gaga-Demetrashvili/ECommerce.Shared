@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ECommerce.Shared.Infrastructure.RabbitMq;
+using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -18,7 +19,8 @@ public static class OpenTelemetryStartupExtensions
             {
                 builder
                     .AddConsoleExporter()
-                    .AddAspNetCoreInstrumentation();
+                    .AddAspNetCoreInstrumentation()
+                    .AddSource(RabbitMqTelemetry.ActivitySourceName);
 
                 customTracing?.Invoke(builder);
             });
