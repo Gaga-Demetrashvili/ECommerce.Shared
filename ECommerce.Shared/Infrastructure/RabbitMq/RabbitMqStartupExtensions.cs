@@ -31,6 +31,7 @@ public static class RabbitMqStartupExtensions
             configuration.GetSection(EventBusOptions.EventBusSectionName));
 
         services.AddHostedService<RabbitMqHostedService>();
+        services.AddSingleton<RabbitMqTelemetry>();
 
         return services;
     }
