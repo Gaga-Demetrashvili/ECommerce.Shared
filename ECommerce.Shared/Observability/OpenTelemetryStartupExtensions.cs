@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
@@ -35,4 +36,15 @@ public static class OpenTelemetryStartupExtensions
 
     public static TracerProviderBuilder WithSqlInstrumentation(this TracerProviderBuilder builder) =>
         builder.AddSqlClientInstrumentation();
+
+    public static OpenTelemetryBuilder AddOpenTelemetryMetrics(this OpenTelemetryBuilder openTelemetryBuilder)
+    {
+        return openTelemetryBuilder
+            .WithMetrics(builder =>
+            {
+                builder
+                    .AddConsoleExporter()
+                    .AddAspNetCoreInstrumentation();
+            });
+    }
 }
