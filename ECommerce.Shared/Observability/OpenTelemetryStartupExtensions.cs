@@ -1,4 +1,5 @@
 ﻿using ECommerce.Shared.Infrastructure.RabbitMq;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenTelemetry;
@@ -49,9 +50,13 @@ public static class OpenTelemetryStartupExtensions
                 builder
                     .AddConsoleExporter()
                     .AddAspNetCoreInstrumentation()
-                    .AddMeter(serviceName);
+                    .AddMeter(serviceName)
+                    .AddPrometheusExporter();
 
                 customMetrics?.Invoke(builder);
             });
     }
+
+    public static void UsePrometheusExporter(this WebApplication webApplication) =>
+        webApplication.UseOpenTelemetryPrometheusScrapingEndpoint();
 }
