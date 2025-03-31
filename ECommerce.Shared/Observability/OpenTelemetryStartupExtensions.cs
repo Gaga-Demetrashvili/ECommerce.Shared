@@ -29,7 +29,7 @@ public static class OpenTelemetryStartupExtensions
                     .AddSource(RabbitMqTelemetry.ActivitySourceName)
                     .AddOtlpExporter(options => options.Endpoint =
                         new Uri(openTelemetryOptions.OtlpExporterEndpoint));
-              
+
                 customTracing?.Invoke(builder);
             });
     }
@@ -37,14 +37,21 @@ public static class OpenTelemetryStartupExtensions
     public static TracerProviderBuilder WithSqlInstrumentation(this TracerProviderBuilder builder) =>
         builder.AddSqlClientInstrumentation();
 
-    public static OpenTelemetryBuilder AddOpenTelemetryMetrics(this OpenTelemetryBuilder openTelemetryBuilder)
+    public static OpenTelemetryBuilder AddOpenTelemetryMetrics(this OpenTelemetryBuilder openTelemetryBuilder,
+        string serviceName, IServiceCollection services,
+        Action<MeterProviderBuilder> customMetrics = null)
     {
+        services.AddSingleton(new MetricFactory(serviceName));
+
         return openTelemetryBuilder
             .WithMetrics(builder =>
             {
                 builder
                     .AddConsoleExporter()
-                    .AddAspNetCoreInstrumentation();
+                    .AddAspNetCoreInstrumentation()
+                    .AddMeter(serviceName);
+
+                customMetrics?.Invoke(builder);
             });
     }
 }
